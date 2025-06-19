@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      transition: background-color 0.3s;
+      background: linear-gradient(45deg, #f0f0f0, #a3c2ff, #d1a3ff, #f0f0f0);
+      background-size: 400%;
+      animation: gradientAnimation 15s ease infinite;
+    }
+    @keyframes gradientAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .calculator-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .heading {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .calculator {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+    }
+    .display {
+      width: 100%;
+      height: 80px;
+      font-size: 24px;
+      text-align: right;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #e6f0fa;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .display .expression {
+      font-size: 16px;
+      color: #666;
+      word-wrap: break-word;
+    }
+    .display .result {
+      font-size: 24px;
+      color: #000;
+    }
+    .history {
+      height: 100px;
+      background: #f0f0f0;
+      border-radius: 5px;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 14px;
+      color: #333;
+    }
+    .buttons {
+      display: grid;
+      grid-template-areas:
+        "openparen closeparen ans del C"
+        "sin cos tan percent sqrt"
+        "log ln power mult div"
+        "seven eight nine plus minus"
+        "four five six pi e"
+        "one two three ms mr"
+        "zero zero dot mc mplus"
+        "enter enter enter enter enter";
+      gap: 5px;
+    }
+    button {
+      padding: 15px;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, opacity 0.3s;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .openparen { grid-area: openparen; background: #ff9999; }
+    .closeparen { grid-area: closeparen; background: #99ff99; }
+    .ans { grid-area: ans; background: #9999ff; }
+    .del { grid-area: del; background: #ffcc99; }
+    .C { grid-area: C; background: #cc99ff; }
+    .sin { grid-area: sin; background: #ff6666; }
+    .cos { grid-area: cos; background: #66ff66; }
+    .tan { grid-area: tan; background: #6666ff; }
+    .log { grid-area: log; background: #ff9966; }
+    .ln { grid-area: ln; background: #cc66ff; }
+    .power { grid-area: power; background: #ff3333; }
+    .seven { grid-area: seven; background: #33ff33; }
+    .eight { grid-area: eight; background: #3333ff; }
+    .nine { grid-area: nine; background: #ff6633; }
+    .percent { grid-area: percent; background: #cc33ff; }
+    .sqrt { grid-area: sqrt; background: #ff0000; }
+    .four { grid-area: four; background: #00ff00; }
+    .five { grid-area: five; background: #0000ff; }
+    .six { grid-area: six; background: #ff3300; }
+    .mult { grid-area: mult; background: #cc00ff; }
+    .div { grid-area: div; background: #ff00cc; }
+    .one { grid-area: one; background: #00ffcc; }
+    .two { grid-area: two; background: #ccff00; }
+    .three { grid-area: three; background: #ff4444; }
+    .plus { grid-area: plus; background: #44ff44; }
+    .minus { grid-area: minus; background: #4444ff; }
+    .zero { grid-area: zero; background: #ffaa00; }
+    .dot { grid-area: dot; background: #aaff00; }
+    .pi { grid-area: pi; background: #00aaff; }
+    .e { grid-area: e; background: #ff00aa; }
+    .ms { grid-area: ms; background: #aa00ff; }
+    .mr { grid-area: mr; background: #ff5500; }
+    .mc { grid-area: mc; background: #55ff00; }
+    .mplus { grid-area: mplus; background: #0055ff; }
+    .enter { grid-area: enter; background: #4682b4; color: white; }
+    .theme-toggle {
+      padding: 10px;
+      font-size: 20px;
+      background: #4682b4;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+    .clear-history {
+      padding: 10px;
+      font-size: 16px;
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* Dark Theme */
+    body.dark {
+      background: linear-gradient(45deg, #1a1a1a, #2c3e50, #4a235a, #1a1a1a);
+      background-size: 400%;
+      animation: gradientAnimation 15s ease infinite;
+    }
+    body.dark .heading {
+      color: #e0e0e0;
+    }
+    body.dark .calculator {
+      background: #2c2c2c;
+    }
+    body.dark .display {
+      background: #3c3c3c;
+      color: #e0e0e0;
+    }
+    body.dark .display .expression {
+      color: #bbb;
+    }
+    body.dark .display .result {
+      color: #fff;
+    }
+    body.dark .history {
+      background: #333;
+      color: #ddd;
+    }
+    body.dark button {
+      background: #444;
+      color: #e0e0e0;
+    }
+    body.dark button:hover {
+      opacity: 0.9;
+    }
+    body.dark .enter {
+      background: #5a9bd4;
+    }
+    body.dark .enter:hover {
+      background: #4a8ac4;
+    }
+    body.dark .theme-toggle {
+      background: #5a9bd4;
+    }
+    body.dark .theme-toggle:hover {
+      background: #4a8ac4;
+    }
+    body.dark .clear-history {
+      background: #ff6666;
+    }
+    body.dark .clear-history:hover {
+      background: #ff3333;
+    }
+
+    @media (max-width: 430px) {
+      .calculator-container {
+        max-width: 320px;
+      }
+      .buttons {
+        grid-template-areas:
+          "openparen closeparen ans del"
+          "C sin cos tan"
+          "percent sqrt log ln"
+          "power seven eight nine"
+          "four five six mult"
+          "div one two three"
+          "plus minus zero dot"
+          "pi e ms mr"
+          "mc mplus enter";
+      }
+      .calculator {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator-container">
+    <button class="theme-toggle" id="themeToggle">☀️🌙</button>
+    <div class="heading">🖩CALCULATOR🖩</div>
+    <div class="history" id="history">No history yet</div>
+    <button class="clear-history" id="clearHistory">Clear History</button>
+    <div class="calculator">
+      <div class="display">
+        <div class="expression">0</div>
+        <div class="result">0</div>
+      </div>
+      <div class="buttons">
+        <button class="openparen">(</button>
+        <button class="closeparen">)</button>
+        <button class="ans">ans</button>
+        <button class="del">del</button>
+        <button class="C">C</button>
+        <button class="sin">sin</button>
+        <button class="cos">cos</button>
+        <button class="tan">tan</button>
+        <button class="percent">%</button>
+        <button class="sqrt">√</button>
+        <button class="log">log</button>
+        <button class="ln">ln</button>
+        <button class="power">^</button>
+        <button class="seven">7</button>
+        <button class="eight">8</button>
+        <button class="nine">9</button>
+        <button class="mult">×</button>
+        <button class="div">÷</button>
+        <button class="four">4</button>
+        <button class="five">5</button>
+        <button class="six">6</button>
+        <button class="plus">+</button>
+        <button class="minus">-</button>
+        <button class="one">1</button>
+        <button class="two">2</button>
+        <button class="three">3</button>
+        <button class="pi">π</button>
+        <button class="e">e</button>
+        <button class="ms">MS</button>
+        <button class="mr">MR</button>
+        <button class="zero">0</button>
+        <button class="dot">.</button>
+        <button class="mc">MC</button>
+        <button class="mplus">M+</button>
+        <button class="enter">ENTER</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const display = document.querySelector('.display .result');
+    const expressionDiv = document.querySelector('.display .expression');
+    const buttons = document.querySelectorAll('.buttons button');
+    const historyDiv = document.getElementById('history');
+    const themeToggle = document.getElementById('themeToggle');
+    const clearHistoryBtn = document.getElementById('clearHistory');
+
+    let currentExpression = '';
+    let result = 0;
+    let lastCalculation = false;
+    let history = [];
+    let memory = 0;
+    let decimalPlaces = 2;
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const value = button.textContent;
+
+        if (value === 'C') {
+          currentExpression = '';
+          result = 0;
+          lastCalculation = false;
+          display.textContent = '0';
+        } else if (value === 'del') {
+          currentExpression = currentExpression.slice(0, -1) || '0';
+          lastCalculation = false;
+        } else if (value === 'ENTER') {
+          if (!isParenthesesBalanced(currentExpression)) {
+            result = 'Error: Unbalanced parentheses';
+          } else {
+            try {
+              let evalExpression = currentExpression
+                .replace('×', '*')
+                .replace('÷', '/')
+                .replace('^', '**')
+                .replace('sin', 'Math.sin')
+                .replace('cos', 'Math.cos')
+                .replace('tan', 'Math.tan')
+                .replace('log', 'Math.log10')
+                .replace('ln', 'Math.log')
+                .replace('π', 'Math.PI')
+                .replace('e', 'Math.E');
+              result = eval(evalExpression) || 0;
+              result = Number(result.toFixed(decimalPlaces));
+              if (currentExpression) {
+                history.unshift(`${currentExpression} = ${result}`);
+                historyDiv.innerHTML = history.join('<br>');
+              }
+              lastCalculation = true;
+            } catch (e) {
+              result = 'Error';
+            }
+          }
+        } else if (value === 'ans') {
+          currentExpression += result;
+          lastCalculation = false;
+        } else if (value === '√') {
+          currentExpression += 'Math.sqrt(';
+          lastCalculation = false;
+        } else if (value === '%') {
+          currentExpression = (parseFloat(result) * parseFloat(currentExpression) / 100).toString();
+          lastCalculation = false;
+        } else if (value === 'MS') {
+          memory = result;
+          lastCalculation = false;
+        } else if (value === 'MR') {
+          currentExpression += memory;
+          lastCalculation = false;
+        } else if (value === 'MC') {
+          memory = 0;
+          lastCalculation = false;
+        } else if (value === 'M+') {
+          memory += result;
+          lastCalculation = false;
+        } else {
+          if (lastCalculation && /[0-9()×÷+-.^sincos tanloglnπe]/.test(value)) {
+            currentExpression = value;
+            result = 0;
+            display.textContent = '0';
+            lastCalculation = false;
+          } else {
+            currentExpression += value;
+            lastCalculation = false;
+          }
+        }
+
+        expressionDiv.textContent = currentExpression || '0';
+        display.textContent = (result !== 'Error' && value === 'ENTER') ? result : display.textContent;
+        playClickSound();
+      });
+    });
+
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      themeToggle.textContent = document.body.classList.contains('dark') ? '🌙' : '☀️';
+    });
+
+    clearHistoryBtn.addEventListener('click', () => {
+      history = [];
+      historyDiv.innerHTML = 'No history yet';
+    });
+
+    document.addEventListener('keydown', (event) => {
+      const key = event.key;
+      if (/[0-9]/.test(key)) buttons.forEach(b => { if (b.textContent === key) b.click(); });
+      else if (key === '+') buttons.forEach(b => { if (b.textContent === '+') b.click(); });
+      else if (key === '-') buttons.forEach(b => { if (b.textContent === '-') b.click(); });
+      else if (key === '*') buttons.forEach(b => { if (b.textContent === '×') b.click(); });
+      else if (key === '/') buttons.forEach(b => { if (b.textContent === '÷') b.click(); });
+      else if (key === '.') buttons.forEach(b => { if (b.textContent === '.') b.click(); });
+      else if (key === '(') buttons.forEach(b => { if (b.textContent === '(') b.click(); });
+      else if (key === ')') buttons.forEach(b => { if (b.textContent === ')') b.click(); });
+      else if (key === 'Enter') buttons.forEach(b => { if (b.textContent === 'ENTER') b.click(); });
+      else if (key === 'Backspace') buttons.forEach(b => { if (b.textContent === 'del') b.click(); });
+    });
+
+    function isParenthesesBalanced(expr) {
+      let count = 0;
+      for (let char of expr) {
+        if (char === '(') count++;
+        else if (char === ')') count--;
+        if (count < 0) return false;
+      }
+      return count === 0;
+    }
+
+    function playClickSound() {
+      const audio = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=');
+      audio.play().catch(() => {});
+    }
+  </script>
+</body>
+</html>
